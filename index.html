@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+       body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+    background: url('we.webp') no-repeat center center fixed;
+    background-size: cover;
+    transition: background-color 0.5s ease;
+}
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeIn 0.5s forwards;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: all 0.3s ease;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        #weather {
+            margin-top: 20px;
+            font-size: 18px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.5s ease;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+            input, button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather Information</h1>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="fetchWeather()">Get Weather</button>
+        <div id="weather"></div>
+    </div>
+
+    <script>
+        async function fetchWeather() {
+            const apiKey = "17c536d65871479fa8663220250903"; // Replace with your WeatherAPI key
+            const city = document.getElementById('city').value.trim();
+            if (!city) {
+                alert('Please enter a city name');
+                return;
+            }
+            const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=no`;
+            
+            try {
+                document.getElementById('weather').innerHTML = '<p>Loading...</p>';
+                document.getElementById('weather').style.opacity = "0";
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                setTimeout(() => {
+                    if (data.error) {
+                        document.getElementById('weather').innerHTML = `<p style="color: red;">${data.error.message}</p>`;
+                    } else {
+                        document.getElementById('weather').innerHTML = `
+                            <h2>${data.location.name}, ${data.location.country}</h2>
+                            <p>Temperature: ${data.current.temp_c}°C</p>
+                            <p>Weather: ${data.current.condition.text}</p>
+                            <p>Humidity: ${data.current.humidity}%</p>
+                            <p>Wind Speed: ${data.current.wind_kph} kph</p>
+                        `;
+                    }
+                    document.getElementById('weather').style.opacity = "1";
+                    document.getElementById('weather').style.transform = "translateY(0)";
+                }, 300);
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                document.getElementById('weather').innerHTML = '<p style="color: red;">Failed to fetch weather data.</p>';
+                document.getElementById('weather').style.opacity = "1";
+                document.getElementById('weather').style.transform = "translateY(0)";
+            }
+        }
+    </script>
+</body>
+</html>
